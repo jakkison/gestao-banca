@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Lista de Apostas</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+<body>
+<div class="container">
+    <h2>Lista de Apostas</h2>
+    <p th:text="'Seu saldo é: ' + ${saldo.bancaFinal}"></p>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Data</th>
+            <th>Evento</th>
+            <th>Mercado</th>
+            <th>Grupo</th>
+            <th>Odd</th>
+            <th>Unidade</th>
+            <th>Valor</th>
+            <th>Percentual Investido</th>
+            <th>Status</th>
+            <th>Retorno</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="aposta : ${apostas}">
+            <td th:text="${#temporals.format(aposta.dataHora, 'dd/MM/yyyy')}"></td>
+            <td th:text="${aposta.evento}"></td>
+            <td th:text="${aposta.mercado}"></td>
+            <td th:text="${aposta.grupo}"></td>
+            <td th:text="${aposta.odd}"></td>
+            <td th:text="${aposta.unidade}"></td>
+            <td th:text="${aposta.valor}"></td>
+            <td th:text="${aposta.percentInvestido}"></td>
+            <td>
+                <form th:action="@{/apostas/atualizarStatus/{id}(id=${aposta.id})}" method="post" class="statusForm">
+                    <select name="statusAposta" class="form-control status-select" data-aposta-id="${aposta.id}">
+                        <option th:selected="${aposta.statusAposta == 'Green'}" th:value="'Green'">Green</option>
+                        <option th:selected="${aposta.statusAposta == 'Red'}" th:value="'Red'">Red</option>
+                        <option th:selected="${aposta.statusAposta == 'Devolvida'}" th:value="'Devolvida'">Devolvida</option>
+                        <option th:selected="${aposta.statusAposta == 'Cashout'}" th:value="'Cashout'">Cashout</option>
+                        <option th:selected="${aposta.statusAposta == 'Meio Green'}" th:value="'Meio Green'">Meio Green</option>
+                        <option th:selected="${aposta.statusAposta == 'Meio Red'}" th:value="'Meio Red'">Meio Red</option>
+                        <option th:selected="${aposta.statusAposta == 'Pré Live'}" th:value="'Pré Live'">Pré Live</option>
+                    </select>
+                </form>
+            </td>
+            <td th:text="${aposta.retornoAposta}"></td>
+            <td>
+                <a th:href="@{'/apostas/editar/' + ${aposta.id}}" class="btn btn-warning">Editar</a>
+                <a th:href="@{'/apostas/deletar/' + ${aposta.id}}" class="btn btn-danger">Excluir</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

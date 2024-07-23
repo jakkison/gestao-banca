@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nova Aposta</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="container">
+    <h2>Nova Aposta</h2>
+    <form th:action="@{/apostas/nova}" th:object="${aposta}" method="post">
+        <div class="form-group">
+            <label for="dataHora">Data</label>
+            <input type="date" id="dataHora" th:field="*{dataHora}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="evento">Evento</label>
+            <input type="text" id="evento" th:field="*{evento}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="mercado">Mercado</label>
+            <select id="mercado" th:field="*{mercado}" class="form-control" required>
+                <option value="Futebol">Futebol</option>
+                <option value="Basquete">Basquete</option>
+                <option value="Tênis">Tênis</option>
+                <option value="Vôlei">Vôlei</option>
+                <option value="NFL">NFL</option>
+                <option value="Outro">Outro</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="grupo">Grupo</label>
+            <select id="grupo" th:field="*{grupo}" class="form-control" required>
+                <option value="Ao vivo">Ao vivo</option>
+                <option value="Pré live">Pré live</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="odd">Odd</label>
+            <input type="number" step="0.01" id="odd" th:field="*{odd}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="unidade">Unidade</label>
+            <input type="number" step="0.01" id="unidade" th:field="*{unidade}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor</label>
+            <input type="number" step="0.01" id="valor" th:field="*{valor}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="percentInvestido">Percentual Investido</label>
+            <input type="number" step="0.01" id="percentInvestido" th:field="*{percentInvestido}" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="statusAposta">Status da Aposta</label>
+            <select id="statusAposta" th:field="*{statusAposta}" class="form-control" required onchange="updateRetornoAposta()">
+                <option value="Green">Green</option>
+                <option value="Red">Red</option>
+                <option value="Devolvida">Devolvida</option>
+                <option value="Cashout">Cashout</option>
+                <option value="Meio Green">Meio Green</option>
+                <option value="Meio Red">Meio Red</option>
+                <option value="Pré Live">Pré Live</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="retornoAposta">Retorno da Aposta</label>
+            <input type="number" step="0.01" id="retornoAposta" th:field="*{retornoAposta}" class="form-control" readonly />
+        </div>
+        <button type="submit" class="btn btn-primary">Registrar Aposta</button>
+    </form>
+</div>
+
+<script>
+    function updateRetornoAposta() {
+        const valor = parseFloat(document.getElementById('valor').value);
+        const odd = parseFloat(document.getElementById('odd').value);
+        const status = document.getElementById('statusAposta').value;
+        let retorno = 0;
+
+        if (!isNaN(valor) && !isNaN(odd)) {
+            switch (status) {
+                case 'Green':
+                    retorno = valor * odd;
+                    break;
+                case 'Red':
+                    retorno = 0;
+                    break;
+                case 'Devolvida':
+                    retorno = valor;
+                    break;
+                case 'Cashout':
+                    retorno = valor * 0.5; // Example value, adjust as needed
+                    break;
+                case 'Meio Green':
+                    retorno = valor * odd * 0.5;
+                    break;
+                case 'Meio Red':
+                    retorno = valor * 0.5;
+                    break;
+                case 'Pré Live':
+                    retorno = valor; // Assuming this is the same as "Devolvida"
+                    break;
+                default:
+                    retorno = 0;
+            }
+        }
+
+        const retornoInput = document.getElementById('retornoAposta');
+        retornoInput.value = retorno.toFixed(2);
+
+        // Update the color of the input based on the status
+        retornoInput.style.backgroundColor = {
+            'Green': 'lightgreen',
+            'Red': 'lightcoral',
+            'Devolvida': 'lightgray',
+            'Cashout': 'lightyellow',
+            'Meio Green': 'lightgreen',
+            'Meio Red': 'lightcoral',
+            'Pré Live': 'white'
+        }[status] || 'white';
+
+        retornoInput.style.color = status === 'Pré Live' ? 'green' : 'black';
+    }
+
+    document.getElementById('valor').addEventListener('input', updateRetornoAposta);
+    document.getElementById('odd').addEventListener('input', updateRetornoAposta);
+</script>
+</body>
+</html>

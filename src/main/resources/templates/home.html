@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container">
+    <h2>Olá <span th:text="${nomeUsuario}"></span>, Bem vindo à Área de Gestão de Apostas</h2>
+</div>
+<div>
+    <a href="/apostas">Minhas apostas</a>
+</div>
+</body>
+</html>
+

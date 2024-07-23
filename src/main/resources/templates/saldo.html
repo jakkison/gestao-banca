@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Saldo</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container">
+    <h2>Saldo</h2>
+    <p th:text="'Seu saldo inicial é: ' + ${saldo.bancaInicial}"></p>
+    <form th:action="@{/saldo/adicionar}" method="post">
+        <div class="form-group">
+            <label for="valor">Adicionar Saldo</label>
+            <input type="number" class="form-control" id="valor" name="valor">
+        </div>
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+        <a href="/home">
+            <button type="button" class="btn btn-primary">Voltar</button>
+        </a>
+    </form>
+</div>
+</body>
+</html>
