@@ -10,15 +10,19 @@
 
 .meio-green-status {
     background-color: #fff3cd;
-    color: #856404;
+    color: #155724;
 }
 
 .meio-red-status {
     background-color: #d1ecf1;
-    color: #0c5460;
+    color: #721c24;
 }
 
-.devolvida-status, .cashout-status, .pre-live-status {
+.cashout-status{
+    background-color: #856404;
+}
+
+.devolvida-status, .pre-live-status {
     background-color: #e2e3e5;
     color: #383d41;
 }

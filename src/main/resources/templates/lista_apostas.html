@@ -4,6 +4,8 @@
     <title>Lista de Apostas</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
     <script th:src="@{/js/script.js}" defer></script>
 </head>
 <body>
@@ -38,7 +40,7 @@
             <td th:text="${aposta.percentInvestido}"></td>
             <td>
                 <form th:action="@{/apostas/atualizarStatus/{id}(id=${aposta.id})}" method="post" class="statusForm">
-                    <select name="statusAposta" class="form-control status-select" data-aposta-id="${aposta.id}">
+                    <select name="statusAposta" class="form-control status-select" data-aposta-id="${aposta.id}" onchange="toggleRetornoManual(this)">
                         <option th:selected="${aposta.statusAposta == 'Green'}" th:value="'Green'">Green</option>
                         <option th:selected="${aposta.statusAposta == 'Red'}" th:value="'Red'">Red</option>
                         <option th:selected="${aposta.statusAposta == 'Devolvida'}" th:value="'Devolvida'">Devolvida</option>
@@ -47,6 +49,7 @@
                         <option th:selected="${aposta.statusAposta == 'Meio Red'}" th:value="'Meio Red'">Meio Red</option>
                         <option th:selected="${aposta.statusAposta == 'Pré Live'}" th:value="'Pré Live'">Pré Live</option>
                     </select>
+                    <input type="number" step="0.01" name="retornoManual" class="form-control mt-2" th:if="${aposta.statusAposta == 'Cashout'}" placeholder="Valor de Retorno" onblur="submitForm(this)" />
                 </form>
             </td>
             <td th:text="${aposta.retornoAposta}"></td>
@@ -57,6 +60,44 @@
         </tr>
         </tbody>
     </table>
+    <a href="/apostas/nova">
+        <button type="button" class="btn btn-primary">Nova aposta</button>
+    </a>
 </div>
+
+<script>
+    function toggleRetornoManual(selectElement) {
+        const form = selectElement.closest('form');
+        const retornoManualInput = form.querySelector('input[name="retornoManual"]');
+
+        if (selectElement.value === 'Cashout') {
+            if (!retornoManualInput) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.name = 'retornoManual';
+                input.className = 'form-control mt-2';
+                input.placeholder = 'Valor de Retorno';
+                input.onblur = function() { submitForm(this); };
+                form.appendChild(input);
+            }
+        } else {
+            if (retornoManualInput) {
+                form.removeChild(retornoManualInput);
+            }
+        }
+    }
+
+    function submitForm(inputElement) {
+        const form = inputElement.closest('form');
+        form.submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.status-select').forEach(selectElement => {
+            toggleRetornoManual(selectElement);
+        });
+    });
+</script>
 </body>
 </html>

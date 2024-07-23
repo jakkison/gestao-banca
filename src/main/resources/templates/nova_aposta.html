@@ -3,6 +3,7 @@
 <head>
     <title>Nova Aposta</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <script th:src="@{/js/jquery.min.js}"></script>
     <script th:src="@{/js/bootstrap.min.js}"></script>
 </head>
@@ -69,7 +70,14 @@
             <input type="number" step="0.01" id="retornoAposta" th:field="*{retornoAposta}" class="form-control" readonly />
         </div>
         <button type="submit" class="btn btn-primary">Registrar Aposta</button>
+        <a href="/apostas">
+            <button type="button" class="btn btn-primary">Cancelar</button>
+        </a>
     </form>
+
+    <div th:if="${erro != null}" class="alert alert-danger mt-3">
+        <p th:text="${erro}"></p>
+    </div>
 </div>
 
 <script>
@@ -111,7 +119,7 @@
         retornoInput.value = retorno.toFixed(2);
 
         // Update the color of the input based on the status
-        retornoInput.style.backgroundColor = {
+        const colorMap = {
             'Green': 'lightgreen',
             'Red': 'lightcoral',
             'Devolvida': 'lightgray',
@@ -119,8 +127,9 @@
             'Meio Green': 'lightgreen',
             'Meio Red': 'lightcoral',
             'Pré Live': 'white'
-        }[status] || 'white';
+        };
 
+        retornoInput.style.backgroundColor = colorMap[status] || 'white';
         retornoInput.style.color = status === 'Pré Live' ? 'green' : 'black';
     }
 

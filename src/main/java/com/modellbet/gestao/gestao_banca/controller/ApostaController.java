@@ -34,10 +34,24 @@ public class ApostaController {
     }
 
     @PostMapping("/nova")
-    public String placeAposta(@ModelAttribute Aposta aposta, Principal principal) {
+    public String placeAposta(@ModelAttribute Aposta aposta, Principal principal, Model model) {
         Long userId = usuarioService.findByEmail(principal.getName()).getId();
+        Saldo saldo = saldoService.findByUsuarioId(userId);
+
+        // Verificar se o saldo é suficiente
+        if (saldo.getBancaFinal().compareTo(aposta.getValor()) < 0) {
+            model.addAttribute("erro", "Saldo insuficiente. Seu saldo atual é: " + saldo.getBancaFinal());
+            model.addAttribute("aposta", aposta);
+            return "nova_aposta";
+        }
+
         aposta.setUsuario(usuarioService.findById(userId).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado")));
         apostaService.save(aposta);
+
+        // Atualizar o saldo
+        saldo.setBancaFinal(saldo.getBancaFinal().subtract(aposta.getValor()));
+        saldoService.save(saldo);
+
         return "redirect:/apostas";
     }
 
@@ -94,7 +108,7 @@ public class ApostaController {
     }
 
     @PostMapping("/atualizarStatus/{id}")
-    public String updateApostaStatus(@PathVariable("id") Long id, @RequestParam("statusAposta") String statusAposta) {
+    public String updateApostaStatus(@PathVariable("id") Long id, @RequestParam("statusAposta") String statusAposta, @RequestParam(value = "retornoManual", required = false) BigDecimal retornoManual) {
         Optional<Aposta> optionalAposta = apostaService.findById(id);
         if (optionalAposta.isPresent()) {
             Aposta aposta = optionalAposta.get();
@@ -108,22 +122,24 @@ public class ApostaController {
 
             switch (statusAposta) {
                 case "Green":
-                    newRetornoAposta = valor.multiply(odd.subtract(BigDecimal.ONE));
+                    newRetornoAposta = valor.multiply(odd);
                     break;
                 case "Meio Green":
-                    newRetornoAposta = valor.multiply(odd.subtract(BigDecimal.ONE)).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
+                    newRetornoAposta = valor.multiply(odd).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
                     break;
                 case "Red":
-                    newRetornoAposta = valor.negate();
-                    break;
-                case "Meio Red":
-                    newRetornoAposta = valor.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP).negate();
-                    break;
-                case "Devolvida":
                     newRetornoAposta = BigDecimal.ZERO;
                     break;
+                case "Meio Red":
+                    newRetornoAposta = valor.divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP);
+                    break;
+                case "Devolvida":
+                    newRetornoAposta = valor;
+                    break;
                 case "Cashout":
-                    newRetornoAposta = BigDecimal.ZERO;  // Dependendo da lógica específica do seu cashout
+                    if (retornoManual != null) {
+                        newRetornoAposta = retornoManual;
+                    }
                     break;
                 case "Pré Live":
                     newRetornoAposta = BigDecimal.ZERO;
@@ -136,6 +152,7 @@ public class ApostaController {
         }
         return "redirect:/apostas";
     }
+
 
 
 }
